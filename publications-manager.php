@@ -135,7 +135,7 @@ function publications_manager_blocks_enqueue() {
 /* ################################################################ */
 
 // Force WordPress to check for plugin updates
-delete_site_transient('update_plugins');
+//delete_site_transient('update_plugins');
 
 // Update Check
 add_filter('site_transient_update_plugins', 'plugin_update_publications_check');
