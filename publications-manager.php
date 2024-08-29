@@ -3,7 +3,7 @@
 Plugin Name: Publications Manager
 Plugin URI: https://github.com/idiv-biodiversity/publications-manager
 Description: WordPress plugin for managing publications at <a href="https://idiv.de" target="_blank">iDiv</a>
-Version: 1.0.1-alpha
+Version: 1.0.2-alpha
 Author: Christian Langer
 Author URI: https://github.com/christianlanger
 Text Domain: publications-manager
