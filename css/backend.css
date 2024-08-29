@@ -1,0 +1,25 @@
+a:hover,
+a:focus {
+    text-decoration: none
+}
+
+#publication-search-search-input{
+  width: 20em;
+  padding: 5px;
+}
+
+#pub_container{
+  margin: 20px 20px 20px 20px;
+}
+
+.action-items i {
+  font-size: 15px
+}
+
+.c-pointer {
+  cursor: pointer
+} 
+
+.toggle {
+  width: 120px !important;
+}
