@@ -135,11 +135,11 @@ function publications_manager_blocks_enqueue() {
 /* ################################################################ */
 
 // Force WordPress to check for plugin updates
-//delete_site_transient('update_plugins');
+delete_site_transient('update_plugins');
 
 // Update Check
-add_filter('site_transient_update_plugins', 'plugin_update_check');
-function plugin_update_check($transient) {
+add_filter('site_transient_update_plugins', 'plugin_update_publications_check');
+function plugin_update_publications_check($transient) {
     include_once(ABSPATH . 'wp-content/custom-config.php');
     if (empty($transient->checked)) {
         return $transient;
@@ -181,8 +181,8 @@ function plugin_update_check($transient) {
 }
 
 // Rename the plugin folder after the update and keep it active
-add_filter('upgrader_post_install', 'rename_plugin_folder', 10, 3);
-function rename_plugin_folder($response, $hook_extra, $result) {
+add_filter('upgrader_post_install', 'rename_plugin_publications_folder', 10, 3);
+function rename_plugin_publications_folder($response, $hook_extra, $result) {
     global $wp_filesystem;
 
     if ($hook_extra['plugin'] !== plugin_basename(__FILE__)) {
@@ -206,8 +206,8 @@ function rename_plugin_folder($response, $hook_extra, $result) {
 }
 
 // View details window for new release
-add_filter('plugins_api', 'plugin_update_details', 10, 3);
-function plugin_update_details($false, $action, $args) {
+add_filter('plugins_api', 'plugin_update_publications_details', 10, 3);
+function plugin_update_publications_details($false, $action, $args) {
     include_once(ABSPATH . 'wp-content/custom-config.php');
     // Check if the action is for plugin information
     if ($action !== 'plugin_information') {
