@@ -65,9 +65,7 @@ $table_name = $wpdb->prefix . 'idiv_publications';
                     <div class="col-md-12">
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             Data successfully updated.
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     </div>
                 </div>';
@@ -76,9 +74,7 @@ $table_name = $wpdb->prefix . 'idiv_publications';
                     <div class="col-md-12">
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             Error updating data.
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     </div>
                 </div>';
@@ -103,7 +99,7 @@ $table_name = $wpdb->prefix . 'idiv_publications';
                         <h3>Edit publication</h3>
                     </div>
                     <div class="col-md-6 text-right">
-                        <img src="<?php echo plugin_dir_path(__FILE__) . 'img/logo.png'; ?>" alt="iDiv logo" class="img-fluid">
+                        <img src="<?php echo plugin_dir_url(__FILE__) . 'img/logo.png'; ?>" alt="iDiv logo" class="img-fluid">
                     </div>
                 </div>
                 <div class="row mb-3">

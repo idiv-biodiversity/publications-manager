@@ -1,8 +1,9 @@
 (function() { //Immediately Invoked Function Expression (IIFE) to avoid conflicts
     
     const { registerBlockType } = wp.blocks;
-    const { createElement } = wp.element; // Import createElement from wp.element
-    const { useBlockProps } = wp.blockEditor;
+    const { useSelect } = wp.data;
+    const { useEffect, useRef } = wp.element;
+    const el = wp.element.createElement;
 
     // ###################################################
     // iDiv Publikationsliste (vollständig)
@@ -40,72 +41,78 @@
             const { attributes, setAttributes } = props;
             const { id } = attributes;
 
-            // Fetch group options
+            const selectRef = useRef(null);
+
             const groupOptions = useSelect((select) => {
                 const posts = select('core').getEntityRecords('postType', 'groups', { per_page: -1 });
-
+            
                 if (!posts) {
                     return [];
                 }
+            
+                const groupedData = posts.reduce((acc, post) => {
+                    const parentPost = posts.find(p => p.id === post.parent);
+                    const group_name = parentPost ? parentPost.title.rendered : post.title.rendered;
+                    const department_name = post.title.rendered;
+            
+                    if (!acc[group_name]) {
+                        acc[group_name] = [];
+                    }
+                    // Add the department object with id and name
+                    if (department_name !== group_name) {
+                        acc[group_name].push({ id: post.id, name: department_name });
+                    }
+            
+                    return acc;
+                }, {});
+            
+                // Create formatted departments and reverse the order
+                const formattedDepartments = Object.entries(groupedData).map(([group, departments]) => ({
+                    label: group,
+                    options: departments.map(department => ({
+                        value: department.id, // Use the department ID for the value
+                        label: department.name // Use the department name for the label
+                    }))
+                })).reverse();
+            
+                return formattedDepartments;
+            }, []);            
 
-                // Separate parent and child pages
-                const parentPages = posts.filter(post => post.parent === 0);
-                const childPages = posts.filter(post => post.parent !== 0);
+            //console.log(groupOptions);
 
-                // Build options array with optgroup and options
-                const options = parentPages.map(parent => {
-                    const childOptions = childPages
-                        .filter(child => child.parent === parent.id)
-                        .map(child => ({
-                            value: child.id,
-                            label: child.title.rendered,
-                        }));
-
-                    return {
-                        label: parent.title.rendered,
-                        options: childOptions,
-                    };
-                });
-
-                return options.reverse();
-            }, []);
-
-            // Create a ref for the select element
-            const selectRef = React.useRef(null);
-
-            // Use effect to initialize selectpicker
-            React.useEffect(() => {
-                // Initialize selectpicker when the component mounts
-                if (selectRef.current) {
-                    jQuery(selectRef.current).selectpicker('refresh');
+            useEffect(() => {
+                    if (selectRef.current) {
+                    jQuery(selectRef.current).selectpicker('destroy'); // Destroy previous instance if any
+                    jQuery(selectRef.current).selectpicker();
                 }
-            }, [groupOptions]); // Re-run this effect if groupOptions changes
+            }, [groupOptions]);
 
             // Render the select element with selectpicker
             return el('select', {
                 ref: selectRef,
-                className: 'selectpicker', // Add selectpicker class
-                'data-live-search': 'true', // Enable live search in selectpicker
-                title: 'Nothing selected',
+                className: 'selectpicker',
+                'data-live-search': true,
                 value: id !== 0 ? id : '',
-                onChange: function (event) {
-                    setAttributes({ id: parseInt(event.target.value, 10) });
+                onChange: (event) => {
+                    const selectedValue = event.target.value;
+                    //console.log('Selected Value:', selectedValue);
+                    setAttributes({ id: selectedValue });
+                }                
                 },
-                children: [
-                    ...groupOptions.map((group) =>
-                        el('optgroup', { label: group.label, key: group.label },
+                groupOptions.map((group, index) =>
+                        el('optgroup', { label: group.label, key: index }, // Use index for unique keys
                             group.options.map(option =>
-                                el('option', { value: option.value, key: option.value }, option.label)
-                            )
+                            el('option', { key: option.value, value: option.value }, option.label)
                         )
                     )
-                ]
-            });
+                )
+            );
         },
         save: function () {
             return null; // Content is rendered dynamically in PHP
         },
     });
+
 
     // ###################################################
     // iDiv Publikationsliste (individuell)
@@ -125,50 +132,49 @@
             const { attributes, setAttributes } = props;
             const { id } = attributes;
     
+            const selectRef = useRef(null);
+    
             // Fetch staff options
             const staffOptions = useSelect((select) => {
                 const posts = select('core').getEntityRecords('postType', 'staff-manager', { per_page: -1 });
+    
                 if (!posts) {
                     return [];
                 }
+    
                 return posts.map((post) => ({
                     value: post.id,
                     label: post.title.rendered,
                 }));
             }, []);
     
-            // Create a ref for the select element
-            const selectRef = React.useRef(null);
-    
-            // Use effect to initialize selectpicker
-            React.useEffect(() => {
-                // Initialize selectpicker when the component mounts
+            useEffect(() => {
                 if (selectRef.current) {
-                    jQuery(selectRef.current).selectpicker('refresh');
+                    jQuery(selectRef.current).selectpicker('destroy'); // Destroy previous instance if any
+                    jQuery(selectRef.current).selectpicker();
                 }
-            }, [staffOptions]); // Re-run this effect if staffOptions changes
+            }, [staffOptions]);
     
             // Render the select element with selectpicker
             return el('select', {
                 ref: selectRef,
-                className: 'selectpicker', // Add selectpicker class
-                'data-live-search': 'true', // Enable live search in selectpicker
-                title: 'Nothing selected',
+                className: 'selectpicker',
+                'data-live-search': true,
                 value: id !== 0 ? id : '',
-                onChange: function (event) {
+                onChange: (event) => {
                     setAttributes({ id: parseInt(event.target.value, 10) });
-                },
-                children: [
-                    ...staffOptions.map((option) =>
-                        el('option', { value: option.value, key: option.value }, option.label)
-                    ),
-                ],
-            });
+                }
+            },
+                staffOptions.map((option) =>
+                    el('option', { value: option.value, key: option.value }, option.label)
+                )
+            );
         },
         save: function () {
             return null; // Content is rendered dynamically in PHP
         },
     });
+    
 
 
 })();

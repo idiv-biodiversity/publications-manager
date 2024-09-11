@@ -9,6 +9,10 @@
   margin-bottom: 4em;
 }
 
+.filters .form-control{
+  padding: 12px;
+}
+
 .links {
   margin-bottom: 20px
 }
@@ -27,8 +31,9 @@
   display: block;
   width: 2.375rem;
   height: 2.375rem;
-  line-height: 2.375rem;
+  line-height: 3rem;
   text-align: center;
   pointer-events: none;
   color: #aaa;
 }
+

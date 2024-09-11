@@ -1,9 +1,9 @@
 <div class="filters row">
-    <div class="col-md-10 has-search pl-0">
+    <div class="col-md-10 has-search ps-0">
       <span class="fa fa-search form-control-feedback"></span>
       <input type="text" id="search-input" class="form-control" placeholder="<?php _e('Search by author or title', 'publications-manager'); ?>" onkeyup="filterPublications()">
     </div>
-    <div class="col-md-2 pr-0">
+    <div class="col-md-2 pe-0">
       <select id="year-select" class="form-control" onchange="filterByYear()">
           <option value=""><?php _e('All years', 'publications-manager'); ?></option>
           <?php
@@ -44,7 +44,7 @@
                         <p><?php echo wp_kses_post($publication->authors); ?> (Eds., <?php echo esc_html($publication->year_published); ?>): <?php echo esc_html($publication->title); ?>. <em><?php echo esc_html($publication->book_title); ?></em>. <?php echo esc_html($publication->publisher); ?></p>
                     <?php endif; ?>
                     <div class="links">
-                        <?php if ($publication->doi_open_access == 1) : ?><span class="badge badge-success">Open Access</span><?php endif; ?>
+                        <?php if ($publication->doi_open_access == 1) : ?><span class="badge rounded-pill bg-success text-white">Open Access</span><?php endif; ?>
                         <?php if (!empty($publication->doi_link)) : ?><a href="<?php echo esc_url($publication->doi_link); ?>" target="_blank">DOI</a><?php endif; ?>
                         <?php if (!empty($publication->pdf_link)) : ?>| <a href="<?php echo esc_url($publication->pdf_link); ?>" target="_blank">PDF</a><?php endif; ?>
                         <?php if (!empty($publication->data_link)) : ?>| <a href="<?php echo esc_url($publication->data_link); ?>" target="_blank">Data</a><?php endif; ?>

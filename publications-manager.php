@@ -3,7 +3,7 @@
 Plugin Name: Publications Manager
 Plugin URI: https://github.com/idiv-biodiversity/publications-manager
 Description: WordPress plugin for managing publications at <a href="https://idiv.de" target="_blank">iDiv</a>
-Version: 1.0.2-alpha
+Version: 1.0.5-alpha
 Author: Christian Langer
 Author URI: https://github.com/christianlanger
 Text Domain: publications-manager
@@ -13,6 +13,63 @@ GitHub Plugin URI: https://github.com/idiv-biodiversity/publications-manager
 /* ################################################################ */
 /* BASIC INIT STUFF */
 /* ################################################################ */
+
+
+// Shared function to enqueue Bootstrap, Font Awesome, Selectpicker, and Toggle Switch
+function enqueue_publications_manager_shared_assets() {
+    // Ensure jQuery is enqueued
+    wp_enqueue_script('jquery');
+
+    // Bootstrap 5
+    if ( ! wp_style_is( 'bootstrap-css', 'enqueued' ) ) {
+        wp_enqueue_style('bootstrap-css', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css');
+    }
+    if ( ! wp_script_is( 'bootstrap-js', 'enqueued' ) ) {
+        wp_enqueue_script('bootstrap-js', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js', array('jquery'), '5.3.0', true);
+    }
+
+    // Font Awesome CSS
+    if ( ! wp_style_is( 'font-awesome', 'enqueued' ) ) {
+        wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css', array(), '5.15.4', 'all');
+    }
+
+    // Selectpicker (Bootstrap 5 compatible)
+    wp_enqueue_style('bootstrap-select-css', 'https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css');
+    wp_enqueue_script('bootstrap-select-js', 'https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js', array('jquery', 'bootstrap-js'), null, true);
+
+    // Bootstrap Toggle Switch
+    wp_enqueue_style('bootstrap-toggle-css', 'https://cdn.jsdelivr.net/npm/bootstrap5-toggle@5.1.1/css/bootstrap5-toggle.min.css');
+    wp_enqueue_script('bootstrap-toggle-js', 'https://cdn.jsdelivr.net/npm/bootstrap5-toggle@5.1.1/js/bootstrap5-toggle.ecmas.min.js', array('jquery'));
+}
+
+// Enqueue scripts and styles for Frontend
+add_action('wp_enqueue_scripts', 'enqueue_publications_manager_frontend_scripts');
+function enqueue_publications_manager_frontend_scripts() {
+    enqueue_publications_manager_shared_assets(); // Load shared assets
+
+    // Custom Frontend CSS and JS
+    wp_enqueue_style('custom-frontend-css', plugin_dir_url(__FILE__) . 'css/frontend.css');
+    wp_enqueue_script('custom-frontend-js', plugin_dir_url(__FILE__) . 'js/frontend.js', array('jquery'));
+}
+
+// Enqueue scripts and styles for Backend
+add_action('admin_enqueue_scripts', 'enqueue_publications_manager_backend_scripts');
+function enqueue_publications_manager_backend_scripts() {
+    enqueue_publications_manager_shared_assets(); // Load shared assets
+
+    // Editor Scripts
+    wp_enqueue_script('editor');
+    wp_enqueue_script('quicktags');
+    wp_enqueue_style('editor-buttons');
+
+    // Custom Backend CSS and JS
+    wp_enqueue_style('custom-backend-css', plugin_dir_url(__FILE__) . 'css/backend.css');
+    wp_enqueue_script('custom-backend-js', plugin_dir_url(__FILE__) . 'js/backend.js', array('jquery'));
+    wp_localize_script('custom-backend-js', 'ajax_object', array('ajaxurl' => admin_url('admin-ajax.php'))); // Localize script data
+}
+
+//$github_token = getenv('GITHUB_TOKEN'); // Load GitHub token from environment variable
+$github_token = file_get_contents('/var/www/github_token'); // Read the GitHub token from the file
 
 // Includes
 include_once(plugin_dir_path(__FILE__) . 'conf.php');
@@ -54,57 +111,6 @@ function publications_manager_create_table() {
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
 }
-
-// scripts and styles for frontend
-add_action('wp_enqueue_scripts', 'enqueue_publications_manager_frontend_scripts');
-function enqueue_publications_manager_frontend_scripts() {
-
-    // bootstrap
-    wp_enqueue_style('bootstrap-css', 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
-    wp_enqueue_script('popper-js', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js', array('jquery'), null, true);
-    wp_enqueue_script('bootstrap-js','https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js',array('jquery'));
-
-    // Font Awesome CSS
-    wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css', array(), '5.15.4', 'all');
-
-    // custom
-    wp_enqueue_style('custom-frontend-css', plugin_dir_url(__FILE__) . 'css/frontend.css');
-
-    wp_enqueue_script('custom-frontend-js', plugin_dir_url(__FILE__) . 'js/frontend.js', array('jquery'));
-}
-
-// scripts and styles for backend
-add_action('admin_enqueue_scripts', 'enqueue_publications_manager_backend_scripts');
-function enqueue_publications_manager_backend_scripts() {
-
-    // editor
-    wp_enqueue_script('editor');
-    wp_enqueue_script('quicktags');
-    wp_enqueue_style('editor-buttons');
-
-    // bootstrap
-    wp_enqueue_style('bootstrap-css', 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
-    wp_enqueue_script('popper-js', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js', array('jquery'), null, true);
-    wp_enqueue_script('bootstrap-js','https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js',array('jquery'));
-
-    // Selectpicker
-    wp_enqueue_style('bootstrap-select-css', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css');
-    wp_enqueue_script('bootstrap-select-js', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js', array('jquery', 'bootstrap-js'), null, true);
-
-    // toggle switch
-    wp_enqueue_style('bootstrap-toggle-css', 'https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css');
-    wp_enqueue_script('bootstrap-toggle-js','https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js',array('jquery'));
-
-    // Font Awesome CSS
-    wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css', array(), '5.15.4', 'all');
-
-    // Custom Stuff
-    wp_enqueue_style('custom-backend-css', plugin_dir_url(__FILE__) . 'css/backend.css');
-
-    wp_enqueue_script('custom-backend-js', plugin_dir_url(__FILE__) . 'js/backend.js', array('jquery'));
-    wp_localize_script('custom-backend-js', 'ajax_object', array('ajaxurl' => admin_url('admin-ajax.php'))); // Localize script data
-
-}
     
 // Create admin menu
 add_action('admin_menu', 'publications_manager_menu');
@@ -137,10 +143,12 @@ function publications_manager_blocks_enqueue() {
 // Force WordPress to check for plugin updates
 //delete_site_transient('update_plugins');
 
-// Update Check
+//Update Check
 add_filter('site_transient_update_plugins', 'plugin_update_publications_check');
 function plugin_update_publications_check($transient) {
-    include_once(ABSPATH . 'wp-content/custom-config.php');
+    global $github_token;
+    //echo $github_token;
+
     if (empty($transient->checked)) {
         return $transient;
     }
@@ -148,7 +156,7 @@ function plugin_update_publications_check($transient) {
     $plugin_slug = plugin_basename(__FILE__);
     $response = wp_remote_get('https://api.github.com/repos/idiv-biodiversity/publications-manager/releases', array(
         'headers' => array(
-            'Authorization' => 'token ' . GITHUB_TOKEN,
+            'Authorization' => 'token ' . $github_token,
             'User-Agent'    => 'Publications Manager'
         )
     ));
@@ -208,7 +216,8 @@ function rename_plugin_publications_folder($response, $hook_extra, $result) {
 // View details window for new release
 add_filter('plugins_api', 'plugin_update_publications_details', 10, 3);
 function plugin_update_publications_details($false, $action, $args) {
-    include_once(ABSPATH . 'wp-content/custom-config.php');
+    global $github_token;
+
     // Check if the action is for plugin information
     if ($action !== 'plugin_information') {
         return $false;
@@ -223,7 +232,7 @@ function plugin_update_publications_details($false, $action, $args) {
     // Fetch release details from GitHub
     $response = wp_remote_get('https://api.github.com/repos/idiv-biodiversity/publications-manager/releases', array(
         'headers' => array(
-            'Authorization' => 'token ' . GITHUB_TOKEN,
+            'Authorization' => 'token ' . $github_token,
             'User-Agent'    => 'Publications Manager'
         )
     ));
@@ -337,6 +346,12 @@ function register_group_publications_block() {
 function render_group_publications_block($attributes) {
     $selected_group_id = isset($attributes['id']) ? intval($attributes['id']) : 0;
 
+    $current_language= apply_filters( 'wpml_current_language', NULL );
+    if ($current_language === 'de'){
+        $selected_group_id = apply_filters( 'wpml_object_id', $selected_group_id, 'post', FALSE, 'en' );
+    }
+    
+
     if ($selected_group_id === 0) {
         return '<p>No group selected.</p>';
     }
@@ -367,6 +382,11 @@ function register_single_publications_block() {
 function render_single_publications_block($attributes) {
 
     $selected_staff_id = isset($attributes['id']) ? intval($attributes['id']) : 0;
+
+    $current_language= apply_filters( 'wpml_current_language', NULL );
+    if ($current_language === 'de'){
+        $selected_staff_id = apply_filters( 'wpml_object_id', $selected_staff_id, 'post', FALSE, 'en' );
+    }
 
     if ($selected_staff_id === 0) {
         return '<p>No employee selected.</p>';

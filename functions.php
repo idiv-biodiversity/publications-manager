@@ -44,7 +44,7 @@ function publications_upload() { ?>
             </form>
         </div>
         <div class="col-md-6 text-right">
-            <img src="<?php echo plugin_dir_path(__FILE__) . 'img/logo.png'; ?>" alt="iDiv logo" class="img-fluid">
+            <img src="<?php echo plugin_dir_url(__FILE__) . 'img/logo.png'; ?>" alt="iDiv logo" class="img-fluid">
         </div>
     </div>
 
@@ -142,23 +142,21 @@ function publications_upload() { ?>
                     <div class="col-md-12">
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             Data successfully uploaded and saved to the database.
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     </div>
-                </div>';
+                </div>
+                ';
         } else {
             echo '<div class="row">
                     <div class="col-md-12">
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             Error loading XML file.
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     </div>
-                </div>';
+                </div>
+                ';
         }
     }
 }
@@ -367,9 +365,9 @@ function publications_table() {
         // Display the status column
         function column_pub_status($item) {
             if( $item->pub_status === '0' ){
-                return "<p class='badge badge-pill badge-warning'>Not Public</p>";
+                return "<p class='badge rounded-pill bg-warning text-dark'>Not Public</p>";
             } else {
-                return "<p class='badge badge-pill badge-success text-white'>Public</p>";
+                return "<p class='badge rounded-pill bg-success text-white'>Public</p>";
             }
         }
 
@@ -398,7 +396,7 @@ function publications_table() {
                 <ul class="subsubsub">
                     <li><span class='font-weight-bold'>All</span> <span class='count'>(<?php echo $total_count; ?>)</span></li>
                     <?php foreach ($counts as $count): ?>
-                        <li><span class='pl-1 pr-1'>|</span><?php echo $count['ref_type']; ?> <span class='count'>(<?php echo $count['count']; ?>)</span></li>
+                        <li><span class='ps-1 pe-1'>|</span><?php echo $count['ref_type']; ?> <span class='count'>(<?php echo $count['count']; ?>)</span></li>
                     <?php endforeach; ?>
                 </ul>
             </div>
@@ -410,26 +408,37 @@ function publications_table() {
             </form>
         </div>
         <div class="col-md-6 pt-3">
-            <form method="get" action="" class="form-inline">
-                <div class="form-group">
-                    <input type="hidden" name="page" value="<?php echo $_REQUEST['page']; ?>">
-                    <select id="ref_type_select" name="ref_type" class="form-control mr-3">
-                        <option value="">All types</option>
-                        <?php foreach ($counts as $count): ?>
-                            <option value='<?php echo $count['ref_type']; ?>' <?php selected($_GET['ref_type'], $count['ref_type']); ?>><?php echo $count['ref_type']; ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <select id="year_select" name="year_published" class="form-control mr-3">
-                        <option value="">All years</option>
-                        <?php foreach ($years as $year): ?>
-                            <option value='<?php echo $year; ?>' <?php selected($_GET['year_published'], $year); ?>><?php echo $year; ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <button class="btn btn-outline-primary mr-3" type="submit">Filter</button> <button name="clear_filters" value="1" class="btn btn-outline-secondary">Clear Filters</button>
-                </div>
-             </form>
+        <form method="get" action="" class="row g-3 align-items-center">
+            <input type="hidden" name="page" value="<?php echo $_REQUEST['page']; ?>">
+
+            <div class="col-auto">
+                <select id="ref_type_select" name="ref_type" class="form-select me-3">
+                    <option value="">All types</option>
+                    <?php foreach ($counts as $count): ?>
+                        <option value='<?php echo $count['ref_type']; ?>' <?php echo isset($_GET['ref_type']) && $_GET['ref_type'] === $count['ref_type'] ? 'selected' : ''; ?>>
+                            <?php echo $count['ref_type']; ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="col-auto">
+                <select id="year_select" name="year_published" class="form-select me-3">
+                    <option value="">All years</option>
+                    <?php foreach ($years as $year): ?>
+                        <option value='<?php echo $year; ?>' <?php echo isset($_GET['year_published']) && $_GET['year_published'] === $year ? 'selected' : ''; ?>>
+                            <?php echo $year; ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="col-auto">
+                <button class="btn btn-outline-primary me-3" type="submit">Filter</button>
+                <button name="clear_filters" value="1" class="btn btn-outline-secondary">Clear Filters</button>
+            </div>
+        </form>
+
         </div>
         <div class="col-md-12">
             <?php $wp_list_table->display(); ?>
@@ -440,51 +449,55 @@ function publications_table() {
 }
 
 function generateToggle($label, $info, $name, $values, $value, $required) {
-    $html = '<div class="form-group row">
-                <div class="col-sm-2 font-weight-bold">'. $label;
-    if($required) {
+    $html = '<div class="mb-3 row">
+                <div class="col-md-2 fw-bold">' . esc_html($label);
+    if ($required) {
         $html .= '<span class="text-danger"> * </span>';
     }
     $html .= '</div>
-                    <div class="col-sm-10">
-                        <div class="">';
+                <div class="col-md-10">
+                    <div class="">';
     foreach ($values as $index => $item) {
-        $html .= '<input type="checkbox" data-toggle="toggle" data-on="Public" data-off="Not Public" data-onstyle="success" data-offstyle="warning" name="' . $name . '" value="' . $item["value"] . '" ';
+        $html .= '<input type="checkbox" data-toggle="toggle" data-onlabel="Public" data-offlabel="Not Public" data-onstyle="success" data-offstyle="warning" name="' . esc_attr($name) . '" value="' . esc_attr($item["value"]) . '" ';
         if ($required && $index === 0) {
-            $html .= 'required="' . $required . '"';
+            $html .= 'required';
         }
         $html .= ($item["value"] === $value) ? ' checked' : '';
-        $html .= '>';
-        //$html .= '><label class="">'. $item["label"] . '</label>';
+        $html .= ' id="' . esc_attr($name) . '-' . $index . '">';
+        //$html .= '<label class="form-check-label" for="' . esc_attr($name) . '-' . $index . '">' . esc_html($item["label"]) . '</label>';
     }
-    $html .= '</div><small><em>'. $info .'</em></small>
+    $html .= '</div>
+                <small class="text-muted"><em>' . esc_html($info) . '</em></small>
             </div>
         </div>';
     return $html;
 }
 
 function generateCheckbox($label, $info, $name, $values, $value, $required) {
-    $html = '<div class="form-group row">
-                <div class="col-sm-2 font-weight-bold">'. $label;
-    if($required) {
+    $html = '<div class="mb-3 row">
+                <div class="col-md-2 fw-bold">' . esc_html($label);
+    if ($required) {
         $html .= '<span class="text-danger"> * </span>';
     }
     $html .= '</div>
-                    <div class="col-sm-10">
-                        <div class="">';
+                <div class="col-md-10">
+                    <div class="form-check-inline">';
     foreach ($values as $index => $item) {
-        $html .= '<input type="checkbox" class="" name="' . $name . '[]" value="' . $item["value"] . '" ';
+        $html .= '<input type="checkbox" class="" name="' . esc_attr($name) . '[]" value="' . esc_attr($item["value"]) . '" ';
         if ($required && $index === 0) {
-            $html .= 'required="' . $required . '"';
+            $html .= 'required';
         }
         $html .= ($item["value"] === $value) ? ' checked' : '';
-        $html .= '><label class="form-check-label">'. $item["label"] . '</label>';
+        $html .= ' id="' . esc_attr($name) . '-' . $index . '">';
+        $html .= '<label class="form-check-label" for="' . esc_attr($name) . '-' . $index . '">' . esc_html($item["label"]) . '</label>';
     }
-    $html .= '</div><small><em>'. $info .'</em></small>
-            </div>
-        </div>';
+    $html .= '</div>
+                    <small class="text-muted"><em>' . esc_html($info) . '</em></small>
+                </div>
+            </div>';
     return $html;
 }
+
 
 // function generateRadio($label, $name, $required){
 //     $html = '<div class="form-group">
@@ -525,58 +538,64 @@ function generateCheckbox($label, $info, $name, $values, $value, $required) {
 //     return $html;
 // }
 
-function generateInputYear($label, $info, $name, $value, $required){
-    $html = '<div class="form-group row">
-                <label class="col-sm-2 col-form-label font-weight-bold">'. esc_html($label);
-    if($required) {
+function generateInputYear($label, $info, $name, $value, $required) {
+    $html = '<div class="mb-3 row">
+                <label class="col-md-2 col-form-label fw-bold">'. esc_html($label);
+    if ($required) {
         $html .= '<span class="text-danger"> * </span>';
     }
     $html .= ' </label>
-                <div class="col-sm-10">
-                    <input type="number" min="1900" max="2099" step="1" id="'. esc_attr($name) .'" class="form-control" value="'. $value .'" name="'. esc_attr($name) .'" ';
+                <div class="col-md-10">
+                    <input type="number" min="1900" max="2099" step="1" id="'. esc_attr($name) .'" class="form-control" value="'. esc_attr($value) .'" name="'. esc_attr($name) .'" ';
     if ($required) {
-        $html .= 'required="' . $required . '" ';
+        $html .= 'required';
     }
-        $html .= '/><small><em>'. esc_html($info) .'</em></small></div></div>';
+    $html .= ' />
+                    <small class="text-muted"><em>'. esc_html($info) .'</em></small>
+                </div>
+            </div>';
     return $html;
 }
+
 
 function generateInput($label, $info, $name, $value, $required, $readonly, $type){
-    $html = '<div class="form-group row">
-                <label class="col-sm-2 col-form-label font-weight-bold">'. esc_html($label);
+    $html = '<div class="mb-3 row">
+                <label class="col-form-label col-md-2 fw-bold">'. esc_html($label);
     if($required) {
         $html .= '<span class="text-danger"> * </span>';
     }
     $html .= ' </label>
-                <div class="col-sm-10">
-                    <input type="'.$type.'" id="'. esc_attr($name) .'" class="form-control" value="'. $value .'" name="'. esc_attr($name) .'" ';
+                <div class="col-md-10">
+                    <input type="'.$type.'" id="'. esc_attr($name) .'" class="form-control" value="'. esc_attr($value) .'" name="'. esc_attr($name) .'" ';
     if ($required) {
-        $html .= 'required="' . $required . '" ';
+        $html .= 'required ';
     }
     if ($readonly) {
-        $html .= ' readonly';
+        $html .= 'readonly ';
     }
-        $html .= '/><small><em>'. esc_html($info) .'</em></small></div></div>';
+        $html .= '/><small class="text-muted"><em>'. esc_html($info) .'</em></small></div></div>';
     return $html;
 }
 
+
 function generateTextarea($label, $info, $name, $value, $required){
-    $html = '<div class="form-group row">
-                <label class="col-sm-2 col-form-label font-weight-bold">'. esc_html($label);
+    $html = '<div class="mb-3 row">
+                <label class="col-form-label col-md-2 fw-bold">'. esc_html($label);
     if($required) {
         $html .= '<span class="text-danger"> * </span>';
     }
     $html .= '</label>
-                <div class="col-sm-10">
+                <div class="col-md-10">
                 <textarea id="'. esc_attr($name) .'" class="form-control" name="'. esc_attr($name) .'" rows="5" ';
     if ($required) {
-        $html .= 'required="' . $required . '"';
+        $html .= 'required ';
     }
-    $html .= '>'. $value .'</textarea><small><em>'. esc_html($info) .'</em></small>
+    $html .= '>'. esc_textarea($value) .'</textarea><small class="text-muted"><em>'. esc_html($info) .'</em></small>
             </div>
         </div>';
     return $html;
 }
+
 
 function generateRichTextarea($label, $info, $name, $value, $required){
     $editor_id = esc_attr($name);
@@ -588,18 +607,18 @@ function generateRichTextarea($label, $info, $name, $value, $required){
     );
     ob_start();
     ?>
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label font-weight-bold">
+    <div class="mb-3 row">
+        <label class="col-md-2 col-form-label fw-bold">
             <?php echo esc_html($label); ?>
             <?php if ($required): ?>
                 <span class="text-danger"> * </span>
             <?php endif; ?>
         </label>
-        <div class="col-sm-10">
+        <div class="col-md-10">
             <?php wp_editor($value, $editor_id, $settings); ?>
             <input type="hidden" id="<?php echo $editor_id; ?>_required" value="<?php echo $required ? 'true' : 'false'; ?>">
             <small id="<?php echo $editor_id; ?>_error" class="text-danger" style="display:none;">This field is required</small>
-            <small><em><?php echo esc_html($info); ?></em></small>
+            <small class="text-muted"><em><?php echo esc_html($info); ?></em></small>
         </div>
     </div>
     <?php
@@ -609,10 +628,11 @@ function generateRichTextarea($label, $info, $name, $value, $required){
 
 
 
+
 function generateSelectbox($wpdb, $label, $info, $name, $values, $value, $required, $multiple){
 
-    $html = '<div class="form-group row">
-                <label class="col-sm-2 col-form-label font-weight-bold">'. esc_html($label);
+    $html = '<div class="mb-3 row">
+                <label class="col-sm-2 col-form-label fw-bold">'. esc_html($label);
     
     if($required) {
         $html .= '<span class="text-danger"> * </span>';
@@ -728,7 +748,7 @@ function generateSelectbox($wpdb, $label, $info, $name, $values, $value, $requir
     //     }
     // }
 
-    $html .= '</select><small><em>'. esc_html($info) .'</em></small></div>';
+    $html .= '</select><small class="text-muted"><em>'. esc_html($info) .'</em></small></div>';
 
     // Optionally, add more HTML based on the type of select box
     // Example:
